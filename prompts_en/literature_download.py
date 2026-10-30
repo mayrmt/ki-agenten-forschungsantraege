@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Seminarversion: Open-Access-Volltexte aus Semantic-Scholar-Suchergebnissen laden.
+"""Seminar version: download open-access full texts from Semantic Scholar search results.
 
-Funktioniert unabhängig vom Forschungsthema. Unterstützt sowohl die bisherigen
-normalisierten Suchergebnisse als auch typische JSON-Antworten der Semantic
-Scholar API (Liste oder Objekt mit dem Feld "data" / "results" / "papers").
+Works independently of the research topic. Supports both the existing normalized
+search results and typical JSON responses from the Semantic Scholar API (a list or
+an object with a "data", "results", or "papers" field).
 
-Installation (einmalig): python -m pip install requests beautifulsoup4
-Aufruf:                python download_open_access_pdfs_seminar.py suchergebnisse.json
-Optional:              python download_open_access_pdfs_seminar.py suchergebnisse.json pdfs manifest.json --limit 10
+Install once: python -m pip install requests beautifulsoup4
+Usage:       python download_open_access_pdfs_seminar.py search_results.json
+Optional:    python download_open_access_pdfs_seminar.py search_results.json pdfs manifest.json --limit 10
 
-Wichtig: Das Skript sucht KEINE neuen Papers. Es lädt PDFs zu zuvor gefundenen
-Treffern herunter, wenn die Eingabedaten Open-Access-Hinweise enthalten.
+Important: The script does NOT search for new papers. It downloads PDFs for
+previously found results when the input data contains open-access indicators.
 """
 
 import argparse
@@ -39,7 +39,7 @@ OA_STATUSES = {"GOLD", "GREEN", "HYBRID", "BRONZE"}
 
 
 def read_results(path):
-    """Akzeptiert JSON-Liste oder eine typische API-Antwort mit Trefferliste."""
+    """Accept a JSON list or a typical API response containing a result list."""
     with path.open(encoding="utf-8-sig") as handle:
         data = json.load(handle)
     if isinstance(data, dict):
@@ -51,11 +51,11 @@ def read_results(path):
 
 
 def normalize(raw):
-    """Vereinheitlicht die Feldnamen beider Semantic-Scholar-Datenformate."""
+    """Normalize field names from both Semantic Scholar data formats."""
 
-    # Open-Access-PDF kann entweder
-    # - ein Dictionary der originalen Semantic-Scholar-API sein oder
-    # - ein String in unseren normalisierten Suchergebnissen.
+    # An open-access PDF can be either:
+    # - a dictionary from the original Semantic Scholar API, or
+    # - a string in our normalized search results.
     oa_raw = raw.get("openAccessPdf") or raw.get("open_access_pdf")
 
     if isinstance(oa_raw, dict):
@@ -68,7 +68,7 @@ def normalize(raw):
         pdf_url = None
         oa_status = ""
 
-    # Falls bereits ein separates pdf_url-Feld existiert, hat dieses Vorrang.
+    # If a separate pdf_url field already exists, it takes precedence.
     pdf_url = raw.get("pdf_url") or pdf_url
 
     authors = []
@@ -113,7 +113,7 @@ def pdf_filename(paper):
     words = [word for word in re.findall(r"[A-Za-z0-9]+", paper["title"])
              if word.lower() not in STOP]
     label = clean(f"{author}_{paper['year'] or 'oJ'}_{'_'.join(words[:5])}")[:85]
-    # Eindeutige Endung, auch bei gleichen Autor:innen/Jahren/Titelanfängen
+    # Add a unique suffix, including when author, year, and title prefix match.
     unique = paper["doi"] or paper["paper_id"] or paper["pdf_url"] or paper["title"]
     suffix = hashlib.sha256(str(unique).encode("utf-8")).hexdigest()[:8]
     return f"{label or 'Paper'}_{suffix}.pdf"
@@ -124,12 +124,12 @@ def valid_web_url(url):
 
 
 def is_real_pdf(response):
-    # Der PDF-Dateiheader ist zuverlässiger als ein HTTP-Content-Type allein.
+    # The PDF file header is more reliable than the HTTP Content-Type alone.
     return b"%PDF-" in response.content[:1024]
 
 
 def pdf_link_from_html(response):
-    """Wenn ein Link zunächst auf einer Landingpage landet, dort PDF suchen."""
+    """Search for a PDF on the landing page if the link initially opens one."""
     content_type = (response.headers.get("Content-Type") or "").lower()
     if "html" not in content_type and not response.text.lstrip().lower().startswith(("<!doctype", "<html")):
         return None
@@ -161,7 +161,7 @@ def get_session():
 
 
 def save_pdf(session, paper, output_file):
-    """Speichert nur tatsächlich als PDF erkannte Antworten; meldet den Status."""
+    """Save only responses confirmed to be PDFs and report the status."""
     url = paper["pdf_url"]
     try:
         response = session.get(url, timeout=40, allow_redirects=True)
@@ -204,11 +204,11 @@ def main():
         parser.error(f"Eingabedatei konnte nicht gelesen werden: {exc}")
 
     papers = [normalize(record) for record in raw_results]
-    # Nur Kandidaten mit einem PDF-Link UND positivem OA-Hinweis.
+    # Keep only candidates with a PDF link AND a positive open-access indicator.
     candidates = [p for p in papers if p["oa_evidence"] and valid_web_url(p["pdf_url"])]
     skipped = len(papers) - len(candidates)
 
-    # Eventuell mehrfach vorhandene Treffer (Suchstring-Überlappungen) entfernen.
+    # Remove duplicate results, which may occur when search strings overlap.
     seen = set()
     unique_papers = []
     for p in candidates:

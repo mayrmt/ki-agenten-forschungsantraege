@@ -1,14 +1,13 @@
-"""
-Vereinfachte Seminarversion einer Literaturrecherche mit Semantic Scholar.
+"""Simplified seminar version of a literature search with Semantic Scholar.
 
-Voraussetzungen:
+Requirements:
 1. Python 3
-2. Paket "requests"
-3. Umgebungsvariable SEMANTIC_SCHOLAR_API_KEY
-4. Datei "search_queries.txt" im gleichen Ordner
+2. The "requests" package
+3. The SEMANTIC_SCHOLAR_API_KEY environment variable
+4. A "search_queries.txt" file in the same directory
 
-Die Datei search_queries.txt enthält einen Suchstring pro Zeile.
-Leere Zeilen und Zeilen, die mit # beginnen, werden ignoriert.
+The search_queries.txt file contains one search string per line.
+Blank lines and lines beginning with # are ignored.
 """
 
 import os
@@ -21,7 +20,7 @@ import requests
 
 
 # ---------------------------------------------------------------------------
-# Einstellungen
+# Settings
 # ---------------------------------------------------------------------------
 
 YEAR_FROM = 2010
@@ -32,11 +31,11 @@ API_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 
 
 # ---------------------------------------------------------------------------
-# Suchstrings laden
+# Load search strings
 # ---------------------------------------------------------------------------
 
 def load_search_queries(filename):
-    """Liest Suchstrings aus einer Textdatei ein."""
+    """Read search strings from a text file."""
 
     queries = []
 
@@ -51,11 +50,11 @@ def load_search_queries(filename):
 
 
 # ---------------------------------------------------------------------------
-# Semantic Scholar durchsuchen
+# Search Semantic Scholar
 # ---------------------------------------------------------------------------
 
 def search_semantic_scholar(query, api_key):
-    """Führt eine einfache Literaturrecherche bei Semantic Scholar durch."""
+    """Run a simple literature search with Semantic Scholar."""
 
     params = {
         "query": query,
@@ -138,11 +137,11 @@ def search_semantic_scholar(query, api_key):
 
 
 # ---------------------------------------------------------------------------
-# Dubletten entfernen
+# Remove duplicates
 # ---------------------------------------------------------------------------
 
 def remove_duplicates(results):
-    """Entfernt doppelte Treffer anhand von DOI oder Titel."""
+    """Remove duplicate results based on DOI or title."""
 
     seen = set()
     unique_results = []
@@ -166,7 +165,7 @@ def remove_duplicates(results):
 
 
 # ---------------------------------------------------------------------------
-# Ergebnisse speichern
+# Save results
 # ---------------------------------------------------------------------------
 
 def save_as_json(results, filename):
@@ -202,7 +201,7 @@ def save_as_csv(results, filename):
 
 
 # ---------------------------------------------------------------------------
-# Hauptprogramm
+# Main program
 # ---------------------------------------------------------------------------
 
 def main():

@@ -79,4 +79,4 @@ Create **`application_review_results.json`**. The following object is the bindin
   "cross_section_consistency": "STILL OPEN",
   "final_researcher_approval_required": true
 }
-``````
+```

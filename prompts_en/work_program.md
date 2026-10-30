@@ -78,4 +78,4 @@ Create **`workplan_results.json`**. The following object is the binding structur
   "open_decisions": [],
   "researcher_approved": false
 }
-``````
+```

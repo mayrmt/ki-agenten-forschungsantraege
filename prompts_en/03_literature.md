@@ -70,4 +70,4 @@ Create **`literature_search_agent_output.json`**. The following object is the bi
   "open_questions": [],
   "handoff_summary_for_research": "STILL OPEN"
 }
-``````
+```

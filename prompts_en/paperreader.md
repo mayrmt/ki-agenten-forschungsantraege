@@ -73,4 +73,3 @@ Conclude with a brief overview covering:
 - Recurring theories
 - Recurring constructs
 - Frequently identified research gaps
-```

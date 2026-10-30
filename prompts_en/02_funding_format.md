@@ -100,4 +100,4 @@ Create **`literature_search_agent_input.json`**. The following object is the bin
   "handoff_summary_for_literature_search_agent": "STILL OPEN",
   "researcher_approved": false
 }
-``````
+```

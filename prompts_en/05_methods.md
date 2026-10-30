@@ -95,4 +95,4 @@ Create **`methods_analysis_results.json`**. The following object is the binding 
   "open_decisions": [],
   "researcher_approved": false
 }
-``````
+```
